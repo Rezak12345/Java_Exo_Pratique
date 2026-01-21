@@ -15,18 +15,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2️⃣ Vérifier où se trouve le pom.xml
+      # 2️⃣ Vérifier les fichiers pour s'assurer que pom.xml est là
       - name: List files in current directory
         run: dir
 
-      # 3️⃣ Installer Java 17
+      # 3️⃣ Aller dans le dossier Java_Pratiqe
+      - name: Change directory to project
+        run: cd Java_Pratiqe
+
+      # 4️⃣ Installer Java 17
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      # 4️⃣ Mettre en cache le repository Maven pour accélérer
+      # 5️⃣ Mettre en cache Maven
       - name: Cache Maven packages
         uses: actions/cache@v3
         with:
@@ -35,10 +39,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      # 5️⃣ Installer les dépendances Maven (sans tests)
+      # 6️⃣ Installer les dépendances Maven sans tests
       - name: Install Maven dependencies
-        run: mvn -f Java_Exo_Pratique/pom.xml clean install -DskipTests
+        run: mvn clean install -DskipTests
+        working-directory: Java_Pratiqe
 
-      # 6️⃣ Exécuter les tests Selenium avec Maven
+      # 7️⃣ Lancer les tests Selenium
       - name: Run Selenium Tests with Maven
-        run: mvn -f Java_Exo_Pratique/pom.xml test -B
+        run: mvn test -B
+        working-directory: Java_Pratiqe
