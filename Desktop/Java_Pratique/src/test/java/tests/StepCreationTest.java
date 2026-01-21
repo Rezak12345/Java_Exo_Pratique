@@ -8,6 +8,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.support.ui.Select;
 import org.testng.annotations.*;
+import org.openqa.selenium.edge.EdgeOptions;
 
 public class StepCreationTest {
 
@@ -18,7 +19,25 @@ public class StepCreationTest {
 
     @BeforeClass
     public void setup() {
-        driver = new EdgeDriver();
+
+        boolean isCI = System.getenv("CI") != null;
+
+        if (isCI) {
+            System.out.println("CI detected -> HEADLESS Edge");
+
+            EdgeOptions options = new EdgeOptions();
+            options.addArguments("--headless=new");
+            options.addArguments("--disable-gpu");
+            options.addArguments("--no-sandbox");
+            options.addArguments("--disable-dev-shm-usage");
+
+            driver = new EdgeDriver(options);
+
+        } else {
+            System.out.println("Local -> normal Edge");
+            driver = new EdgeDriver();
+        }
+
         readData = new ReadData();
     }
 
