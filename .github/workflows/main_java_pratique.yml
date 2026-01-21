@@ -1,27 +1,27 @@
-name: Java Maven Selenium Tests on Windows
+name: Selenium Tests (Edge - Headless)
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
   pull_request:
 
 jobs:
-  selenium-tests-windows:
+  selenium-tests:
     runs-on: windows-latest
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: List files in repo root
-        run: dir
+        uses: actions/checkout@v4
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          distribution: temurin
+          java-version: 17
+
+      # Edge est déjà présent sur le runner
+      - name: Setup Microsoft Edge
+        uses: browser-actions/setup-edge@v1
 
       - name: Cache Maven packages
         uses: actions/cache@v3
@@ -31,21 +31,21 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      # Étape pour détecter le dossier Maven automatiquement
-      - name: Find Maven project directory
+      # Trouve automatiquement le dossier Maven
+      - name: Find Maven project
         id: find-maven
         shell: pwsh
         run: |
           $pom = Get-ChildItem -Path $PWD -Filter pom.xml -Recurse | Select-Object -First 1
-          if (-not $pom) { throw "No pom.xml found in repo!" }
-          $mavenDir = Split-Path $pom.FullName
-          Write-Host "Found Maven project in $mavenDir"
-          echo "maven_dir=$mavenDir" >> $env:GITHUB_ENV
+          if (-not $pom) { throw "No pom.xml found" }
+          $dir = Split-Path $pom.FullName
+          echo "MAVEN_DIR=$dir" >> $env:GITHUB_ENV
+          Write-Host "Maven project in: $dir"
 
-      - name: Install Maven dependencies
+      - name: Build (skip tests)
         run: mvn clean install -DskipTests
-        working-directory: ${{ env.maven_dir }}
+        working-directory: ${{ env.MAVEN_DIR }}
 
-      - name: Run Selenium Tests with Maven
+      - name: Run Selenium tests
         run: mvn test -B
-        working-directory: ${{ env.maven_dir }}
+        working-directory: ${{ env.MAVEN_DIR }}
