@@ -31,10 +31,21 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
+      # Étape pour détecter le dossier Maven automatiquement
+      - name: Find Maven project directory
+        id: find-maven
+        shell: pwsh
+        run: |
+          $pom = Get-ChildItem -Path $PWD -Filter pom.xml -Recurse | Select-Object -First 1
+          if (-not $pom) { throw "No pom.xml found in repo!" }
+          $mavenDir = Split-Path $pom.FullName
+          Write-Host "Found Maven project in $mavenDir"
+          echo "maven_dir=$mavenDir" >> $env:GITHUB_ENV
+
       - name: Install Maven dependencies
         run: mvn clean install -DskipTests
-        working-directory: Java_Pratique  # <-- juste le dossier relatif dans le repo
+        working-directory: ${{ env.maven_dir }}
 
       - name: Run Selenium Tests with Maven
         run: mvn test -B
-        working-directory: Java_Pratique  # <-- pareil
+        working-directory: ${{ env.maven_dir }}
