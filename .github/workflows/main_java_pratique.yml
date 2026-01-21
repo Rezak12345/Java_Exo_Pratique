@@ -11,26 +11,18 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      # 1️⃣ Récupérer le code
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2️⃣ Vérifier les fichiers pour s'assurer que pom.xml est là
-      - name: List files in current directory
+      - name: List files in repo root
         run: dir
 
-      # 3️⃣ Aller dans le dossier Java_Pratiqe
-      - name: Change directory to project
-        run: cd Java_Pratiqe
-
-      # 4️⃣ Installer Java 17
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      # 5️⃣ Mettre en cache Maven
       - name: Cache Maven packages
         uses: actions/cache@v3
         with:
@@ -39,12 +31,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      # 6️⃣ Installer les dépendances Maven sans tests
       - name: Install Maven dependencies
         run: mvn clean install -DskipTests
-        working-directory: Java_Pratiqe
+        working-directory: ./Java_Pratiqe
 
-      # 7️⃣ Lancer les tests Selenium
       - name: Run Selenium Tests with Maven
         run: mvn test -B
-        working-directory: Java_Pratiqe
+        working-directory: ./Java_Pratiqe
