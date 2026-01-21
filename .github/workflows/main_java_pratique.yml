@@ -19,10 +19,6 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      # Edge est déjà présent sur le runner
-      - name: Setup Microsoft Edge
-        uses: browser-actions/setup-edge@v1
-
       - name: Cache Maven packages
         uses: actions/cache@v3
         with:
@@ -31,7 +27,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      # Trouve automatiquement le dossier Maven
       - name: Find Maven project
         id: find-maven
         shell: pwsh
